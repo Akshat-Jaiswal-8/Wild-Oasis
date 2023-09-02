@@ -1,3 +1,4 @@
+/* eslint-disable */
 import styled from "styled-components";
 
 const TableRow = styled.div`
@@ -38,3 +39,55 @@ const Discount = styled.div`
   font-weight: 500;
   color: var(--color-green-700);
 `;
+
+import { formatCurrency } from "../../utils/helpers.js";
+import Button from "../../ui/Button.jsx";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins.js";
+import { toast, ToastContainer } from "react-toastify";
+
+// eslint-disable-next-line react/prop-types
+function CabinRow({ cabin }) {
+  // eslint-disable-next-line react/prop-types
+  const {
+    id: cabinId,
+    name,
+    maxCapacity,
+    regularPrice,
+    discount,
+    image,
+  } = cabin;
+
+  const queryClient = useQueryClient(); // hook for accessing the query client instance from app.jsx
+
+  const { isLoading: isDeleting, mutate } = useMutation({
+    mutationFn: (id) => deleteCabin(id),
+    onSuccess: () => {
+      alert("Cabin deleted Successfully !");
+      queryClient.invalidateQueries({
+        // this will invalidate the cache data, and again fetching of data will be done.
+        queryKey: ["cabins"],
+      });
+    },
+    onError: () => {
+      alert("Error Occurred while deleting the cabin ");
+    },
+  });
+
+  return (
+    <>
+      <TableRow role={"row"}>
+        <Img src={image} />
+        <Cabin>{name}</Cabin>
+        <div>fits upto {maxCapacity} guests</div>
+        <Price>{formatCurrency(regularPrice)}</Price>
+        <Discount>{formatCurrency(discount)}</Discount>
+        <Button onClick={() => mutate(cabinId)} disabled={isDeleting}>
+          Delete
+        </Button>
+      </TableRow>
+    </>
+  );
+}
+
+export default CabinRow;

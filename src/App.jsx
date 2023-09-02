@@ -9,10 +9,21 @@ import Account from "./pages/Account.jsx";
 import PageNotFound from "./pages/PageNotFound.jsx";
 import GlobalStyles from "./styles/GlobalStyles.js";
 import AppLayout from "./ui/AppLayout.jsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // by this, the data will be considered fresh for 60 seconds as if it was just fetched from query function.
+    },
+  },
+});
 
 const App = () => {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
       <GlobalStyles />
       <BrowserRouter>
         <Routes>
@@ -29,67 +40,8 @@ const App = () => {
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </QueryClientProvider>
   );
 };
 
 export default App;
-
-// *************************These all were for practice of styled Components.****************************//
-
-// import styled from "styled-components";
-// import GlobalStyles from "./styles/GlobalStyles.js";
-// import { Input } from "./ui/FileInput.jsx";
-// import Heading from "./ui/Heading.jsx";
-// import Button from "./ui/Button.jsx";
-// import Row from "./ui/Row.jsx";
-
-// const StyledApp = styled.div`
-//   // background-color: orangered;
-//   padding: 20px;
-// `;
-// function App() {
-//   return (
-//     <>
-//       <GlobalStyles />
-//       <StyledApp>
-//         <Row>
-//           <Row type="horizontal">
-//             <Heading as="h1">The wild oasis.</Heading>
-
-//             <div>
-//               <Heading as="h2">Check in and check out.</Heading>
-//               <Button
-//                 variation="primary"
-//                 size="medium"
-//                 onClick={() => {
-//                   alert("check in");
-//                 }}
-//               >
-//                 Check in
-//               </Button>
-//               <Button
-//                 variation="secondary"
-//                 size="small"
-//                 onClick={() => {
-//                   alert("check out");
-//                 }}
-//               >
-//                 Check out
-//               </Button>
-//             </div>
-//           </Row>
-//           <Row>
-//             <Heading as="h3">Form</Heading>
-//             <div>
-//               <Input type={"number"} placeholder={"Number of guests"} />
-//               <Input type={"number"} placeholder={"Number of guests"} />
-//             </div>
-//           </Row>
-//         </Row>
-//       </StyledApp>
-//     </>
-//   );
-// }
-
-// export default App;
