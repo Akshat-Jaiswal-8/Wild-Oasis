@@ -1,4 +1,9 @@
 /* eslint-disable */
+import { formatCurrency } from "../../utils/helpers.js";
+import Button from "../../ui/Button.jsx";
+import { useState } from "react";
+import CreateCabinForm from "./CreateCabinForm.jsx";
+import { useDeleteCabin } from "./useDeleteCabin.js";
 import styled from "styled-components";
 
 const TableRow = styled.div`
@@ -26,31 +31,24 @@ const Cabin = styled.div`
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--color-grey-600);
-  font-family: "Sono";
+  font-family: "Sono", serif;
 `;
 
 const Price = styled.div`
-  font-family: "Sono";
+  font-family: "Sono", serif;
   font-weight: 600;
 `;
 
 const Discount = styled.div`
-  font-family: "Sono";
+  font-family: "Sono", serif;
   font-weight: 500;
   color: var(--color-green-700);
 `;
 
-import { formatCurrency } from "../../utils/helpers.js";
-import Button from "../../ui/Button.jsx";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCabin } from "../../services/apiCabins.js";
-import toast from "react-hot-toast";
-import { useState } from "react";
-import CreateCabinForm from "./CreateCabinForm.jsx";
-
 // eslint-disable-next-line react/prop-types
 function CabinRow({ cabin }) {
   const [showForm, setShowForm] = useState(false);
+  const { isDeleting, deleteCabin } = useDeleteCabin();
 
   // eslint-disable-next-line react/prop-types
   const {
@@ -62,22 +60,6 @@ function CabinRow({ cabin }) {
     image,
   } = cabin;
 
-  const queryClient = useQueryClient(); // hook for accessing the query client instance from app.jsx
-
-  const { isLoading: isDeleting, mutate } = useMutation({
-    mutationFn: (id) => deleteCabin(id),
-    onSuccess: () => {
-      toast.success("Cabin deleted Successfully !");
-      queryClient.invalidateQueries({
-        // this will invalidate the cache data, and again fetching of data will be done.
-        queryKey: ["cabins"],
-      });
-    },
-    onError: () => {
-      toast.error("Error Occurred while deleting the cabin ");
-    },
-  });
-
   return (
     <>
       <TableRow role={"row"}>
@@ -85,7 +67,11 @@ function CabinRow({ cabin }) {
         <Cabin>{name}</Cabin>
         <div>fits upto {maxCapacity} guests</div>
         <Price>{formatCurrency(regularPrice)}</Price>
-        <Discount>{formatCurrency(discount)}</Discount>
+        {discount ? (
+          <Discount>{formatCurrency(discount)}</Discount>
+        ) : (
+          <span>&mdash; </span>
+        )}
         <div
           style={{
             display: "flex",
@@ -99,7 +85,7 @@ function CabinRow({ cabin }) {
           >
             Edit{" "}
           </Button>
-          <Button onClick={() => mutate(cabinId)} disabled={isDeleting}>
+          <Button onClick={() => deleteCabin(cabinId)} disabled={isDeleting}>
             Delete
           </Button>
         </div>

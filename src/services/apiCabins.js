@@ -1,6 +1,5 @@
 /* eslint-disable */
 import supabase, { supabaseUrl } from "./supabase.js";
-import { da } from "date-fns/locale";
 
 export async function getCabins() {
   const { data, error } = await supabase.from("cabins").select("*");
