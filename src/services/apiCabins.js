@@ -11,19 +11,23 @@ export async function getCabins() {
 }
 
 export const createEditCabin = async (newCabin, id) => {
+  console.log(newCabin, newCabin.id);
   const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
   const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll(
     "/",
     "",
   );
+
   const imagePath = hasImagePath
     ? newCabin.image
-    : `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+    : `${supabaseUrl}/storage/v1/object/public/cabin-imEnable insert access for all usersages/${imageName}`;
+  console.log(imagePath);
 
   // 1. create/edit the cabin
   let query = supabase.from("cabins"); // we have done this, bcz this is the commonly used technique to use some part of the query.
   //1.CREATE
   if (!id) query = query.insert([{ ...newCabin, image: imagePath }]);
+  console.log(id);
 
   //2.EDIT
   if (id) query = query.update({ ...newCabin, image: imagePath }).eq("id", id);

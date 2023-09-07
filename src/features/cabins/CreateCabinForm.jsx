@@ -20,7 +20,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
   const { id: editId, ...editValues } = cabinToEdit;
   const isEditSession = Boolean(editId); // this will convert the editId to false if not in editting mode.
 
-  const { register, handleSubmit, reset, getValues, formState } = useForm({
+  const { register, handleSubmit, reset, formState } = useForm({
     defaultValues: isEditSession ? editValues : {},
   });
   const { errors } = formState;
