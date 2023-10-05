@@ -1,7 +1,6 @@
+import UpdateSettingsForm from "../features/settings/UpdateSettingsForm";
 import Heading from "../ui/Heading";
-import Row from "../ui/Row.jsx";
-import UpdateSettingsForm from "../features/settings/UpdateSettingsForm.jsx";
-import { useSetting } from "../features/settings/useSetting.js";
+import Row from "../ui/Row";
 
 function Settings() {
   return (

@@ -31,7 +31,6 @@ function CreateCabinForm() {
     mutate({ ...data, image: data.image[0] });
   }
 
-  // eslint-disable-next-line no-unused-vars
   function onError(errors) {
     // console.log(errors);
   }
@@ -87,7 +86,9 @@ function CreateCabinForm() {
           defaultValue={0}
           {...register("discount", {
             required: "This field is required",
-            validate: (value) => getValues().regularPrice < value,
+            validate: (value) =>
+              value <= getValues().regularPrice ||
+              "Discount should be less than regular price",
           })}
         />
       </FormRow>
@@ -111,7 +112,7 @@ function CreateCabinForm() {
       <FormRow label="Cabin photo">
         <FileInput
           id="image"
-          accept="image/*" // type file is not req bcz it's mentioned in a styled component
+          accept="image/*"
           {...register("image", {
             required: "This field is required",
           })}
@@ -119,6 +120,7 @@ function CreateCabinForm() {
       </FormRow>
 
       <FormRow>
+        {/* type is an HTML attribute! */}
         <Button variation="secondary" type="reset">
           Cancel
         </Button>

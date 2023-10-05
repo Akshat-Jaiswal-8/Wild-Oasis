@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { updateSetting as updateSettingApi } from "../../services/apiSettings.js";
+import { updateSetting as updateSettingApi } from "../../services/apiSettings";
 
-const useUpdateSetting = () => {
+export function useUpdateSetting() {
   const queryClient = useQueryClient();
+
   const { mutate: updateSetting, isLoading: isUpdating } = useMutation({
-    mutationFn: updateSettingApi, // we can only pass one element to this function, so we are passing only one object as an argument
+    mutationFn: updateSettingApi,
     onSuccess: () => {
-      toast.success("Settings Updated successfully");
+      toast.success("Setting successfully edited");
       queryClient.invalidateQueries({ queryKey: ["settings"] });
     },
     onError: (err) => toast.error(err.message),
   });
-  return { updateSetting, isUpdating };
-};
 
-export default useUpdateSetting;
+  return { isUpdating, updateSetting };
+}

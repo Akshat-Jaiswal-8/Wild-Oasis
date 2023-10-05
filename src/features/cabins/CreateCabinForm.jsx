@@ -1,5 +1,4 @@
-/* eslint-disable */
-import { toast } from "react-hot-toast";
+import { useForm } from "react-hook-form";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
@@ -8,38 +7,34 @@ import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import FormRow from "../../ui/FormRow";
 
-import { useForm } from "react-hook-form";
-import useCreateCabin from "./useCreateCabin.js";
-import useEditCabin from "./useEditCabin.js";
+import { useCreateCabin } from "./useCreateCabin";
+import { useEditCabin } from "./useEditCabin";
 
 function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
-  const { createCabin, isCreating } = useCreateCabin();
-  const { editCabin, isEditing } = useEditCabin();
-  const isWorking = isEditing || isCreating;
+  const { isCreating, createCabin } = useCreateCabin();
+  const { isEditing, editCabin } = useEditCabin();
+  const isWorking = isCreating || isEditing;
 
   const { id: editId, ...editValues } = cabinToEdit;
-  const isEditSession = Boolean(editId); // this will convert the editId to false if not in editting mode.
+  const isEditSession = Boolean(editId);
 
-  const { register, handleSubmit, reset, formState } = useForm({
+  const { register, handleSubmit, reset, getValues, formState } = useForm({
     defaultValues: isEditSession ? editValues : {},
   });
   const { errors } = formState;
 
   function onSubmit(data) {
     const image = typeof data.image === "string" ? data.image : data.image[0];
+
     if (isEditSession)
       editCabin(
+        { newCabinData: { ...data, image }, id: editId },
         {
-          newCabinData: { ...data, image: image },
-          id: editId,
-        },
-        {
-          onSuccess: () => {
+          onSuccess: (data) => {
             reset();
             onCloseModal?.();
           },
-        },
-        onCloseModal?.(),
+        }
       );
     else
       createCabin(
@@ -49,13 +44,12 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
             reset();
             onCloseModal?.();
           },
-        },
+        }
       );
   }
 
-  // eslint-disable-next-line no-unused-vars
   function onError(errors) {
-    toast.error(errors);
+    // console.log(errors);
   }
 
   return (
@@ -112,13 +106,15 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
           defaultValue={0}
           {...register("discount", {
             required: "This field is required",
+            validate: (value) =>
+              value <= getValues().regularPrice ||
+              "Discount should be less than regular price",
           })}
         />
       </FormRow>
 
       <FormRow
         label="Description for website"
-        disabled={isWorking}
         error={errors?.description?.message}
       >
         <Textarea
@@ -135,7 +131,7 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
       <FormRow label="Cabin photo">
         <FileInput
           id="image"
-          accept="image/*" // type file is not req bcz it's mentioned in a styled component
+          accept="image/*"
           {...register("image", {
             required: isEditSession ? false : "This field is required",
           })}
@@ -143,16 +139,16 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
       </FormRow>
 
       <FormRow>
+        {/* type is an HTML attribute! */}
         <Button
           variation="secondary"
           type="reset"
-          onClick={() => onCloseModal?.()} // this we have done because we don't know whether this
-          // form we be used again in the modal window, so optional chaining is added.
+          onClick={() => onCloseModal?.()}
         >
           Cancel
         </Button>
         <Button disabled={isWorking}>
-          {isEditSession ? "Edit Cabin" : "Create a new Cabin"}
+          {isEditSession ? "Edit cabin" : "Create new cabin"}
         </Button>
       </FormRow>
     </Form>

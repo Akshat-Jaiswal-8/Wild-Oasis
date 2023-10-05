@@ -1,15 +1,8 @@
-import React, {
-  cloneElement,
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { HiXMark } from "react-icons/hi2";
+import { cloneElement, createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
+import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
-import { useOutsideClick } from "../hooks/useOutsideClick.js";
+import { useOutsideClick } from "../hooks/useOutsideClick";
 
 const StyledModal = styled.div`
   position: fixed;
@@ -53,54 +46,55 @@ const Button = styled.button`
   & svg {
     width: 2.4rem;
     height: 2.4rem;
+    /* Sometimes we need both */
+    /* fill: var(--color-grey-500);
+    stroke: var(--color-grey-500); */
     color: var(--color-grey-500);
   }
 `;
 
 const ModalContext = createContext();
 
-const Modal = ({ children }) => {
+function Modal({ children }) {
   const [openName, setOpenName] = useState("");
 
   const close = () => setOpenName("");
   const open = setOpenName;
 
   return (
-    <ModalContext.Provider value={{ open, close, openName }}>
+    <ModalContext.Provider value={{ openName, close, open }}>
       {children}
     </ModalContext.Provider>
   );
-};
+}
 
 function Open({ children, opens: opensWindowName }) {
   const { open } = useContext(ModalContext);
 
-  return cloneElement(children, {
-    onClick: () => {
-      open(opensWindowName);
-    },
-  });
+  return cloneElement(children, { onClick: () => open(opensWindowName) });
 }
+
 function Window({ children, name }) {
   const { openName, close } = useContext(ModalContext);
-
-  const ref = useRef();
-  useOutsideClick({ ref, close });
+  const ref = useOutsideClick(close);
 
   if (name !== openName) return null;
+
   return createPortal(
     <Overlay>
       <StyledModal ref={ref}>
         <Button onClick={close}>
           <HiXMark />
         </Button>
+
         <div>{cloneElement(children, { onCloseModal: close })}</div>
       </StyledModal>
     </Overlay>,
-    document.body,
+    document.body
   );
 }
 
 Modal.Open = Open;
 Modal.Window = Window;
+
 export default Modal;
